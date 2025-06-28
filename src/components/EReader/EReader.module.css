@@ -1,0 +1,384 @@
+/* Mobile-first EReader styles */
+
+.readerContainer {
+  width: 100%;
+  height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.readerHeader {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.fileName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  truncate: true;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.readerControls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.controlButton {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton:hover {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.controlButton:active {
+  transform: scale(0.95);
+}
+
+.scrollContainer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.virtualContainer {
+  position: relative;
+  width: 100%;
+}
+
+.visibleContent {
+  position: relative;
+}
+
+.textLine {
+  padding: 0 1rem;
+  line-height: 1.8;
+  font-size: 1rem;
+  color: #2d3748;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  word-wrap: break-word;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: none;
+}
+
+.textLine:hover {
+  background: rgba(66, 153, 225, 0.05);
+}
+
+.textLine:active {
+  background: rgba(66, 153, 225, 0.1);
+}
+
+.textLine.highlighted {
+  background: rgba(66, 153, 225, 0.1);
+}
+
+.generatedContent {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(56, 178, 172, 0.1));
+  border-left: 4px solid #48bb78;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  font-style: italic;
+  position: relative;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.generatedContent::before {
+  content: '✨ Generated Content';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: #48bb78;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.streamingContent {
+  background: linear-gradient(135deg, rgba(66, 153, 225, 0.1), rgba(102, 126, 234, 0.1));
+  border-left: 4px solid #4299e1;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+.streamingContent::before {
+  content: '⚡ Generating...';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: #4299e1;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.loadingIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: #718096;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #4299e1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a0aec0;
+  text-align: center;
+  padding: 2rem;
+}
+
+.emptyStateIcon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.progressBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 20;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #4299e1, #3182ce);
+  transition: width 0.3s ease;
+}
+
+/* Reader settings */
+.settingsPanel {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 30;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.settingsPanel.open {
+  right: 0;
+}
+
+.settingsOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 25;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.settingsOverlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.settingGroup {
+  margin-bottom: 1.5rem;
+}
+
+.settingLabel {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.settingInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .textLine {
+    padding: 0 2rem;
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .fileName {
+    max-width: 300px;
+    font-size: 1rem;
+  }
+  
+  .generatedContent,
+  .streamingContent {
+    max-width: 760px;
+    margin: 1rem auto;
+  }
+  
+  .readerHeader {
+    padding: 1rem 2rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .textLine {
+    padding: 0 3rem;
+    font-size: 1.2rem;
+    max-width: 900px;
+  }
+  
+  .generatedContent,
+  .streamingContent {
+    max-width: 840px;
+  }
+  
+  .readerHeader {
+    padding: 1rem 3rem;
+  }
+  
+  .fileName {
+    max-width: 400px;
+    font-size: 1.1rem;
+  }
+  
+  .settingsPanel {
+    width: 350px;
+    right: -350px;
+  }
+}
+
+/* Dark theme */
+.readerContainer.dark {
+  background: #1a202c;
+}
+
+.readerContainer.dark .readerHeader {
+  background: #2d3748;
+  border-bottom-color: #4a5568;
+}
+
+.readerContainer.dark .fileName {
+  color: #e2e8f0;
+}
+
+.readerContainer.dark .textLine {
+  color: #e2e8f0;
+}
+
+.readerContainer.dark .textLine:hover {
+  background: rgba(66, 153, 225, 0.1);
+}
+
+.readerContainer.dark .controlButton {
+  color: #a0aec0;
+}
+
+.readerContainer.dark .controlButton:hover {
+  background: #4a5568;
+  color: #e2e8f0;
+}
+
+/* Print styles */
+@media print {
+  .readerHeader,
+  .readerControls,
+  .progressBar,
+  .settingsPanel,
+  .settingsOverlay {
+    display: none !important;
+  }
+  
+  .scrollContainer {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  .textLine {
+    break-inside: avoid;
+  }
+}

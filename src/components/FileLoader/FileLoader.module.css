@@ -1,0 +1,249 @@
+/* Mobile-first FileLoader styles */
+
+.fileLoader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  margin: 1rem;
+}
+
+.dropZone {
+  width: 100%;
+  max-width: 400px;
+  min-height: 200px;
+  border: 2px dashed #cbd5e0;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.dropZone:hover {
+  border-color: #4299e1;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dropZone.dragOver {
+  border-color: #3182ce;
+  background: rgba(66, 153, 225, 0.1);
+  animation: pulse 1s infinite;
+}
+
+.dropZone.loading {
+  border-color: #48bb78;
+  background: rgba(72, 187, 120, 0.1);
+  cursor: wait;
+}
+
+.dropZone.error {
+  border-color: #f56565;
+  background: rgba(245, 101, 101, 0.1);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 1rem;
+  color: #4a5568;
+  transition: color 0.3s ease;
+}
+
+.dropZone:hover .icon {
+  color: #4299e1;
+}
+
+.dropZone.dragOver .icon {
+  color: #3182ce;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #718096;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.hiddenInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.browseButton {
+  background: #4299e1;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 44px; /* Touch-friendly minimum */
+}
+
+.browseButton:hover {
+  background: #3182ce;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(65, 153, 225, 0.3);
+}
+
+.browseButton:active {
+  transform: translateY(0);
+}
+
+.browseButton:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.progressBar {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #4299e1, #3182ce);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+.fileInfo {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  text-align: center;
+  max-width: 300px;
+}
+
+.fileName {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.fileSize {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+.errorMessage {
+  color: #f56565;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: rgba(245, 101, 101, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #f56565;
+}
+
+.supportedFormats {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  color: #a0aec0;
+  text-align: center;
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .fileLoader {
+    padding: 2rem;
+    margin: 2rem;
+  }
+  
+  .dropZone {
+    max-width: 500px;
+    min-height: 250px;
+    padding: 3rem 2rem;
+  }
+  
+  .icon {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .fileLoader {
+    min-height: 70vh;
+  }
+  
+  .dropZone {
+    max-width: 600px;
+    min-height: 300px;
+  }
+  
+  .icon {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+  }
+}

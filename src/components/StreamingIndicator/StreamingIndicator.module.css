@@ -1,0 +1,396 @@
+/* Mobile-first StreamingIndicator styles */
+
+.container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 50vh;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.container.visible {
+  transform: translateY(0);
+}
+
+.header {
+  padding: 1rem 1.5rem 0.5rem;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status {
+  font-size: 0.8rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeButton:hover {
+  color: #718096;
+  background: #edf2f7;
+}
+
+.content {
+  padding: 1rem 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.progressSection {
+  margin-bottom: 1rem;
+}
+
+.progressTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progressList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.progressItem {
+  padding: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #718096;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressItem::before {
+  content: '•';
+  color: #48bb78;
+  font-weight: bold;
+}
+
+.progressItem.current {
+  color: #4299e1;
+  font-weight: 500;
+}
+
+.progressItem.current::before {
+  content: '⚡';
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.generatedSection {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.generatedTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wordCount {
+  background: #e2e8f0;
+  color: #4a5568;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.generatedContent {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #2d3748;
+  max-height: 150px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.streamingText {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #4299e1;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.controls {
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelButton {
+  background: white;
+  color: #718096;
+  border: 1px solid #e2e8f0;
+}
+
+.cancelButton:hover {
+  background: #f7fafc;
+  color: #4a5568;
+}
+
+.acceptButton {
+  background: #48bb78;
+  color: white;
+}
+
+.acceptButton:hover {
+  background: #38a169;
+}
+
+.acceptButton:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.retryButton {
+  background: #4299e1;
+  color: white;
+}
+
+.retryButton:hover {
+  background: #3182ce;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorState {
+  background: #fed7d7;
+  color: #c53030;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #feb2b2;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.minimized {
+  transform: translateY(calc(100% - 60px));
+}
+
+.minimized .content,
+.minimized .controls {
+  display: none;
+}
+
+.minimized .header {
+  border-bottom: none;
+  cursor: pointer;
+}
+
+.minimized .header:hover {
+  background: #edf2f7;
+}
+
+.minimizeButton {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.minimizeButton:hover {
+  color: #718096;
+  background: #edf2f7;
+}
+
+/* Tablet styles */
+@media (min-width: 768px) {
+  .container {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) translateY(100%);
+    width: 600px;
+    border-radius: 12px 12px 0 0;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+  }
+  
+  .container.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .minimized {
+    transform: translateX(-50%) translateY(calc(100% - 60px));
+  }
+  
+  .content {
+    max-height: 350px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .container {
+    width: 700px;
+  }
+  
+  .content {
+    max-height: 400px;
+  }
+  
+  .generatedContent {
+    max-height: 200px;
+  }
+}
+
+/* Dark theme */
+.container.dark {
+  background: #2d3748;
+  border-top-color: #4a5568;
+}
+
+.container.dark .header {
+  background: #4a5568;
+  border-bottom-color: #718096;
+}
+
+.container.dark .title {
+  color: #e2e8f0;
+}
+
+.container.dark .status {
+  color: #cbd5e0;
+}
+
+.container.dark .generatedContent {
+  background: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+.container.dark .controls {
+  background: #4a5568;
+  border-top-color: #718096;
+}
+
+.container.dark .cancelButton {
+  background: #4a5568;
+  color: #cbd5e0;
+  border-color: #718096;
+}
+
+.container.dark .cancelButton:hover {
+  background: #718096;
+}
