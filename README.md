@@ -2,7 +2,7 @@
 
 **Mobile-first React UI for testing the Buche Content Generator** - A responsive e-reader interface with real-time AI content generation capabilities.
 
-## Overview
+## Overview 
 
 This Cloudflare Worker serves a React application that provides an intuitive interface for testing the Buche Content Generator Worker. Users can load text files (novels, stories), read them in a clean e-reader interface, and generate sexual content by clicking anywhere in the text with real-time WebSocket streaming.
 
