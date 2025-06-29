@@ -12,11 +12,19 @@
   max-height: 50vh;
   overflow: hidden;
   transform: translateY(100%);
-  transition: transform 0.3s ease-out;
+  transition: all 0.3s ease-out;
 }
 
 .container.visible {
   transform: translateY(0);
+}
+
+/* Streaming mode - expand to 90% height for content reading */
+.container.streaming {
+  max-height: 90vh;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -70,10 +78,60 @@
   max-height: 300px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content area in streaming mode */
+.container.streaming .content {
+  max-height: none;
+  height: calc(90vh - 80px); /* Account for header only, no controls */
+  padding: 0;
 }
 
 .progressSection {
   margin-bottom: 1rem;
+}
+
+/* Current progress display (compact) */
+.currentProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+/* Streaming content section */
+.streamingSection {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.streamingHeader {
+  padding: 1rem 1.5rem 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: white;
+  flex-shrink: 0;
+}
+
+.streamingContent {
+  flex: 1;
+  padding: 1.5rem;
+  background: #f7fafc;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.streamingContent .streamingText {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #2d3748;
+  letter-spacing: 0.02em;
 }
 
 .progressTitle {
@@ -338,6 +396,12 @@
   .content {
     max-height: 350px;
   }
+  
+  /* Streaming mode on tablet */
+  .container.streaming {
+    width: 80vw;
+    max-width: 900px;
+  }
 }
 
 /* Desktop styles */
@@ -352,6 +416,12 @@
   
   .generatedContent {
     max-height: 200px;
+  }
+  
+  /* Streaming mode on desktop */
+  .container.streaming {
+    width: 85vw;
+    max-width: 1200px;
   }
 }
 
@@ -393,4 +463,23 @@
 
 .container.dark .cancelButton:hover {
   background: #718096;
+}
+
+.container.dark .currentProgress {
+  background: #4a5568;
+  border-color: #718096;
+  color: #e2e8f0;
+}
+
+.container.dark .streamingHeader {
+  background: #2d3748;
+  border-bottom-color: #4a5568;
+}
+
+.container.dark .streamingContent {
+  background: #4a5568;
+}
+
+.container.dark .streamingContent .streamingText {
+  color: #e2e8f0;
 }

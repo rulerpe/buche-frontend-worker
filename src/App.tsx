@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import FileLoader from './components/FileLoader';
 import EReader from './components/EReader';
 import ContextMenu from './components/ContextMenu';
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   // UI state
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [clickPosition, setClickPosition] = useState<ClickPosition | null>(null);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme] = useState<'light' | 'dark'>('light');
   
   // Generated content state
   const [generatedContent, setGeneratedContent] = useState<Map<number, GeneratedContentBlock>>(new Map());
@@ -92,34 +92,31 @@ const App: React.FC = () => {
 
   // Handle content generation request
   const handleGenerate = useCallback((selectedTags: string[], contextText: string) => {
-    // Connect if not already connected
-    if (!isConnected) {
-      console.log('Connecting to WebSocket...');
-      connect();
-      // Wait a bit for connection to establish
-      setTimeout(() => {
-        if (!isConnected) {
-          console.error('Failed to connect to WebSocket');
-          setIsGenerating(false);
-          return;
-        }
-        // Proceed with generation after connection
-        proceedWithGeneration(selectedTags, contextText);
-      }, 10000);
-      return;
-    }
-    
-    proceedWithGeneration(selectedTags, contextText);
-  }, [isConnected, connect]);
-  
-  // Helper function to proceed with generation
-  const proceedWithGeneration = useCallback((selectedTags: string[], contextText: string) => {
-
-    console.log('Generating content with tags:', selectedTags);
+    // Start generation state immediately to show dialog
+    setIsGenerating(true);
+    setShowContextMenu(false);
     
     // Clear previous streaming content
     clearContent();
     clearProgress();
+    
+    // Connect if not already connected
+    if (!isConnected) {
+      console.log('Connecting to WebSocket...');
+      connect();
+      
+      // Store the generation parameters to use after connection
+      (window as any).__pendingGeneration = { selectedTags, contextText };
+      
+      return;
+    }
+    
+    proceedWithGeneration(selectedTags, contextText);
+  }, [isConnected, connect, clearContent, clearProgress]);
+  
+  // Helper function to proceed with generation
+  const proceedWithGeneration = useCallback((selectedTags: string[], contextText: string) => {
+    console.log('Generating content with tags:', selectedTags);
     
     // Prepare generation request
     const request: GenerationRequest = {
@@ -128,47 +125,25 @@ const App: React.FC = () => {
       maxLength: 800,
       style: 'continue'
     };
-
-    // Start generation
-    setIsGenerating(true);
-    setShowContextMenu(false);
     
     const success = generateContent(request);
     if (!success) {
-      setIsGenerating(false);
       console.error('Failed to send generation request');
+      // Keep dialog open to show error state
     }
-  }, [generateContent, clearContent, clearProgress]);
+  }, [generateContent]);
 
-  // Handle accepting generated content
-  const handleAcceptContent = useCallback((content: string) => {
-    if (!clickPosition || !currentFile) return;
+  // Watch for WebSocket connection to complete pending generation
+  useEffect(() => {
+    if (isConnected && (window as any).__pendingGeneration) {
+      const { selectedTags, contextText } = (window as any).__pendingGeneration;
+      delete (window as any).__pendingGeneration;
+      
+      console.log('WebSocket connected - proceeding with pending generation');
+      proceedWithGeneration(selectedTags, contextText);
+    }
+  }, [isConnected, proceedWithGeneration]);
 
-    // Create new content block
-    const newBlock: GeneratedContentBlock = {
-      id: crypto.randomUUID(),
-      position: clickPosition.textIndex,
-      content: content,
-      timestamp: Date.now(),
-      tags: [], // Would store the tags used for generation
-      isHighlighted: true,
-      isExpanded: true
-    };
-
-    // Add to generated content map
-    setGeneratedContent(prev => {
-      const newMap = new Map(prev);
-      newMap.set(clickPosition.textIndex, newBlock);
-      return newMap;
-    });
-
-    // Clear generation state
-    setIsGenerating(false);
-    clearContent();
-    clearProgress();
-    
-    console.log('Content accepted and inserted');
-  }, [clickPosition, currentFile, clearContent, clearProgress]);
 
   // Handle canceling generation
   const handleCancelGeneration = useCallback(() => {
@@ -178,21 +153,7 @@ const App: React.FC = () => {
     console.log('Generation canceled');
   }, [clearContent, clearProgress]);
 
-  // Handle retrying generation
-  const handleRetryGeneration = useCallback(() => {
-    if (clickPosition) {
-      // Reconnect WebSocket if needed and show context menu
-      if (!isConnected) {
-        connect();
-      }
-      setShowContextMenu(true);
-    }
-  }, [clickPosition, isConnected, connect]);
 
-  // Toggle theme
-  const toggleTheme = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  }, []);
 
   // Render loading state
   if (!currentFile) {
@@ -228,34 +189,14 @@ const App: React.FC = () => {
 
       {/* Streaming Indicator */}
       <StreamingIndicator
-        isActive={isGenerating || streamingContent.length > 0}
+        isActive={isGenerating || streamingContent.length > 0 || wsState === 'error'}
         state={wsState}
         progressMessages={progressMessages}
         generatedContent={streamingContent}
-        onAccept={handleAcceptContent}
         onCancel={handleCancelGeneration}
-        onRetry={handleRetryGeneration}
         theme={theme}
       />
 
-      {/* Theme Toggle (for development) */}
-      <button
-        onClick={toggleTheme}
-        style={{
-          position: 'fixed',
-          top: '1rem',
-          right: '1rem',
-          background: theme === 'light' ? '#2d3748' : '#f7fafc',
-          color: theme === 'light' ? '#f7fafc' : '#2d3748',
-          border: 'none',
-          borderRadius: '8px',
-          padding: '0.5rem',
-          cursor: 'pointer',
-          zIndex: 1000
-        }}
-      >
-        {theme === 'light' ? '🌙' : '☀️'}
-      </button>
     </div>
   );
 };

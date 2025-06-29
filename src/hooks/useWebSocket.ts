@@ -58,9 +58,8 @@ export const useWebSocket = ({
           break;
           
         case 'complete':
-          if (message.data.success) {
-            setGeneratedContent(message.data.generatedContent);
-          }
+          // Don't overwrite the streamed content - keep what we have
+          // The final content should already be accumulated through streaming
           updateState('connected'); // Reset to connected state
           break;
           

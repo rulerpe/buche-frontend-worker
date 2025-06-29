@@ -56,7 +56,7 @@ export const useTags = (apiBaseUrl: string) => {
   }, [tags]);
 
   // Get popular tags (top N by usage)
-  const getPopularTags = useCallback((limit: number = 6) => {
+  const getPopularTags = useCallback((limit: number = 8) => {
     return [...tags]
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, limit);

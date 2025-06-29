@@ -95,7 +95,6 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
         disabled={isGenerating}
       >
         {tag.name}
-        <span className={styles.tagCount}>({tag.usageCount})</span>
       </button>
     );
   }, [selectedTags, toggleTag, isGenerating]);
@@ -104,7 +103,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const renderPopularTags = () => (
     <div className={styles.section}>
       <div className={styles.sectionTitle}>
-        ⭐ Popular Tags
+        ⭐ Top Tags
         {selectedTags.length > 0 && (
           <span className={styles.selectedCount}>
             {selectedTags.length} selected
@@ -232,11 +231,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
             />
           </div>
 
-          {/* Popular Tags */}
-          {!searchQuery.trim() && renderPopularTags()}
-
-          {/* Categories or Search Results */}
-          {renderCategories()}
+          {/* Popular Tags or Search Results */}
+          {!searchQuery.trim() ? renderPopularTags() : renderCategories()}
 
           {/* Empty state */}
           {filteredTags.length === 0 && searchQuery.trim() && (
