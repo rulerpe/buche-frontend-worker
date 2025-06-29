@@ -1,6 +1,6 @@
 import { handleStaticRequest, handleCORSPreflight } from './handlers/static.js';
 import { handleTagsRequest, handleGeneratorStatusRequest, createErrorResponse } from './handlers/api.js';
-import { handleWebSocketRequest } from './handlers/websocket.js';
+import { handleStreamRequest, handleWebSocketRequest } from './handlers/websocket.js';
 import type { Env } from './types/worker.js';
 
 /**
@@ -55,6 +55,9 @@ async function handleAPIRoutes(pathname: string, method: string, request: Reques
     case '/api/stream':
       if (method === 'GET') {
         return await handleWebSocketRequest(request, env);
+      }
+      if (method === 'POST') {
+        return await handleStreamRequest(request, env);
       }
       break;
 
