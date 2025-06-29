@@ -36,6 +36,10 @@ const EReader: React.FC<EReaderProps> = ({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [highlightedLine, setHighlightedLine] = useState<number | null>(null);
   
+  // Touch gesture tracking state
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number; time: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  
   const { textContainerRef, handleTextClick } = useTextSelection();
 
   // Split text into lines for better rendering performance
@@ -51,9 +55,39 @@ const EReader: React.FC<EReaderProps> = ({
     setScrollProgress(Math.min(100, Math.max(0, progress)));
   }, []);
 
+  // Handle touch start - track initial touch position
+  const handleTouchStart = useCallback((
+    event: React.TouchEvent
+  ) => {
+    const touch = event.touches[0];
+    setTouchStart({
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now()
+    });
+    setIsDragging(false);
+  }, []);
+
+  // Handle touch move - detect if user is scrolling/dragging
+  const handleTouchMove = useCallback((
+    event: React.TouchEvent
+  ) => {
+    if (!touchStart) return;
+
+    const touch = event.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStart.x);
+    const deltaY = Math.abs(touch.clientY - touchStart.y);
+    
+    // Consider it dragging if movement exceeds threshold (10px)
+    const dragThreshold = 10;
+    if (deltaX > dragThreshold || deltaY > dragThreshold) {
+      setIsDragging(true);
+    }
+  }, [touchStart]);
+
   // Handle text click with position calculation
   const handleLineClick = useCallback((
-    event: React.MouseEvent | React.TouchEvent,
+    event: React.MouseEvent,
     lineIndex: number
   ) => {
     // Update highlighted line for visual feedback
@@ -63,6 +97,37 @@ const EReader: React.FC<EReaderProps> = ({
     // Use the text selection hook to handle the click
     handleTextClick(event, fileInfo.content, onTextClick);
   }, [fileInfo.content, handleTextClick, onTextClick]);
+
+  // Handle touch end - only trigger click if it was a tap (not drag/scroll)
+  const handleTouchEnd = useCallback((
+    event: React.TouchEvent,
+    lineIndex: number
+  ) => {
+    if (!touchStart) return;
+
+    const now = Date.now();
+    const timeDiff = now - touchStart.time;
+    
+    // Reset touch tracking
+    setTouchStart(null);
+    
+    // Don't trigger click if:
+    // 1. User was dragging/scrolling
+    // 2. Touch was too long (>500ms, likely a long press)
+    // 3. Touch was too short (<100ms, likely accidental)
+    if (isDragging || timeDiff > 500 || timeDiff < 100) {
+      setIsDragging(false);
+      return;
+    }
+
+    // This was a legitimate tap - proceed with click handling
+    setHighlightedLine(lineIndex);
+    setTimeout(() => setHighlightedLine(null), 1000);
+
+    // Use the text selection hook to handle the tap
+    handleTextClick(event, fileInfo.content, onTextClick);
+    setIsDragging(false);
+  }, [touchStart, isDragging, fileInfo.content, handleTextClick, onTextClick]);
 
   // Render text line with generated content insertion
   const renderTextLine = useCallback((line: string, lineIndex: number) => {
@@ -74,7 +139,9 @@ const EReader: React.FC<EReaderProps> = ({
         <div
           className={`${styles.lineContent} ${isHighlighted ? styles.highlighted : ''}`}
           onClick={(e) => handleLineClick(e, lineIndex)}
-          onTouchEnd={(e) => handleLineClick(e, lineIndex)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={(e) => handleTouchEnd(e, lineIndex)}
           style={{
             fontSize: `${settings.fontSize}px`,
             lineHeight: settings.lineHeight,
@@ -92,6 +159,9 @@ const EReader: React.FC<EReaderProps> = ({
   }, [
     highlightedLine, 
     handleLineClick, 
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     settings,
     generatedContent,
     isGenerating,
