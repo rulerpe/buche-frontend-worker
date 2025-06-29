@@ -80,10 +80,7 @@ const App: React.FC = () => {
     // Clear previous generated content
     setGeneratedContent(new Map());
     
-    // Connect to WebSocket if not already connected
-    if (!isConnected) {
-      connect();
-    }
+    // Don't auto-connect on file load, wait for user to generate content
   }, []);
 
   // Handle text click in reader
@@ -95,12 +92,28 @@ const App: React.FC = () => {
 
   // Handle content generation request
   const handleGenerate = useCallback((selectedTags: string[], contextText: string) => {
-    // Check WebSocket connection before generating
+    // Connect if not already connected
     if (!isConnected) {
-      console.error('WebSocket not connected');
-      setIsGenerating(false);
+      console.log('Connecting to WebSocket...');
+      connect();
+      // Wait a bit for connection to establish
+      setTimeout(() => {
+        if (!isConnected) {
+          console.error('Failed to connect to WebSocket');
+          setIsGenerating(false);
+          return;
+        }
+        // Proceed with generation after connection
+        proceedWithGeneration(selectedTags, contextText);
+      }, 10000);
       return;
     }
+    
+    proceedWithGeneration(selectedTags, contextText);
+  }, [isConnected, connect]);
+  
+  // Helper function to proceed with generation
+  const proceedWithGeneration = useCallback((selectedTags: string[], contextText: string) => {
 
     console.log('Generating content with tags:', selectedTags);
     
@@ -125,7 +138,7 @@ const App: React.FC = () => {
       setIsGenerating(false);
       console.error('Failed to send generation request');
     }
-  }, [generateContent, clearContent, clearProgress, isConnected]);
+  }, [generateContent, clearContent, clearProgress]);
 
   // Handle accepting generated content
   const handleAcceptContent = useCallback((content: string) => {

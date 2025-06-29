@@ -213,9 +213,26 @@ export const useWebSocket = ({
   // Clean up on unmount
   useEffect(() => {
     return () => {
-      disconnect();
+      // Clear timeouts
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+      }
+      
+      // Close connection
+      if (wsRef.current) {
+        wsRef.current.removeEventListener('open', handleOpen);
+        wsRef.current.removeEventListener('message', handleMessage);
+        wsRef.current.removeEventListener('close', handleClose);
+        wsRef.current.removeEventListener('error', handleError);
+        
+        wsRef.current.close(1000, 'Component unmount');
+        wsRef.current = null;
+      }
     };
-  }, [disconnect]);
+  }, []); // Empty dependency array to avoid re-running
 
   return {
     // State
