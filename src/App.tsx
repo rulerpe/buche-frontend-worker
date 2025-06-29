@@ -3,7 +3,7 @@ import FileLoader from './components/FileLoader';
 import EReader from './components/EReader';
 import ContextMenu from './components/ContextMenu';
 import StreamingIndicator from './components/StreamingIndicator';
-import { useSSE } from './hooks/useSSE';
+import { useWebSocket } from './hooks/useWebSocket';
 import type { 
   FileInfo, 
   ClickPosition, 
@@ -13,8 +13,8 @@ import type {
 } from './types';
 import './styles/global.css';
 
-// Configuration - use proxy endpoints for same-origin requests
-const SSE_URL = '/api/stream'; // SSE proxy endpoint
+// Configuration - direct connection to content generator worker
+const WS_URL = 'wss://buche-content-generator-worker.neetisthebest.workers.dev/generate-stream';
 
 const App: React.FC = () => {
   // File state
@@ -29,24 +29,26 @@ const App: React.FC = () => {
   const [generatedContent, setGeneratedContent] = useState<Map<number, GeneratedContentBlock>>(new Map());
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // SSE connection
+  // WebSocket connection
   const {
-    state: sseState,
+    state: wsState,
     generatedContent: streamingContent,
     progressMessages,
     generateContent,
     clearContent,
-    clearProgress
-  } = useSSE({
-    url: SSE_URL,
-    onMessage: handleSSEMessage,
-    onStatusChange: handleSSEStatusChange,
-    onError: handleSSEError
+    clearProgress,
+    connect,
+    isConnected
+  } = useWebSocket({
+    url: WS_URL,
+    onMessage: handleWSMessage,
+    onStatusChange: handleWSStatusChange,
+    onError: handleWSError
   });
 
-  // Handle SSE messages
-  function handleSSEMessage(message: WebSocketMessage) {
-    console.log('SSE message:', message);
+  // Handle WebSocket messages
+  function handleWSMessage(message: WebSocketMessage) {
+    console.log('WebSocket message:', message);
     
     switch (message.type) {
       case 'complete':
@@ -59,14 +61,14 @@ const App: React.FC = () => {
     }
   }
 
-  // Handle SSE status changes
-  function handleSSEStatusChange(status: typeof sseState) {
-    console.log('SSE status:', status);
+  // Handle WebSocket status changes
+  function handleWSStatusChange(status: typeof wsState) {
+    console.log('WebSocket status:', status);
   }
 
-  // Handle SSE errors
-  function handleSSEError(error: string) {
-    console.error('SSE error:', error);
+  // Handle WebSocket errors
+  function handleWSError(error: string) {
+    console.error('WebSocket error:', error);
     setIsGenerating(false);
   }
 
@@ -78,8 +80,10 @@ const App: React.FC = () => {
     // Clear previous generated content
     setGeneratedContent(new Map());
     
-    // SSE connections are stateless, no need to connect
-    // Connection happens on demand during generateContent
+    // Connect to WebSocket if not already connected
+    if (!isConnected) {
+      connect();
+    }
   }, []);
 
   // Handle text click in reader
@@ -91,7 +95,12 @@ const App: React.FC = () => {
 
   // Handle content generation request
   const handleGenerate = useCallback((selectedTags: string[], contextText: string) => {
-    // SSE connections are made on-demand, no need to check isConnected
+    // Check WebSocket connection before generating
+    if (!isConnected) {
+      console.error('WebSocket not connected');
+      setIsGenerating(false);
+      return;
+    }
 
     console.log('Generating content with tags:', selectedTags);
     
@@ -116,7 +125,7 @@ const App: React.FC = () => {
       setIsGenerating(false);
       console.error('Failed to send generation request');
     }
-  }, [generateContent, clearContent, clearProgress]);
+  }, [generateContent, clearContent, clearProgress, isConnected]);
 
   // Handle accepting generated content
   const handleAcceptContent = useCallback((content: string) => {
@@ -159,10 +168,13 @@ const App: React.FC = () => {
   // Handle retrying generation
   const handleRetryGeneration = useCallback(() => {
     if (clickPosition) {
-      // Show context menu again (no need to reconnect for SSE)
+      // Reconnect WebSocket if needed and show context menu
+      if (!isConnected) {
+        connect();
+      }
       setShowContextMenu(true);
     }
-  }, [clickPosition]);
+  }, [clickPosition, isConnected, connect]);
 
   // Toggle theme
   const toggleTheme = useCallback(() => {
@@ -204,7 +216,7 @@ const App: React.FC = () => {
       {/* Streaming Indicator */}
       <StreamingIndicator
         isActive={isGenerating || streamingContent.length > 0}
-        state={sseState}
+        state={wsState}
         progressMessages={progressMessages}
         generatedContent={streamingContent}
         onAccept={handleAcceptContent}
